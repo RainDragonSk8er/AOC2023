@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "dBfA23gNcrxfbCvxhQTrQNR1waBM5ADEldOkkJz5HSboGfiKpRkeogy97q5eR/LeNVT1TgnePQWCANmmbQivCw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Hallvard\\revisoft.no\\Revisoft Intranett - Kodesenter\\AdventOfCode\\2023\\AOC2023\\Dec01a\\Dec01.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Hallvard\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\3.1.31\\microsoft.netcore.app.host.win-x64.3.1.31.nupkg.sha512"
+  ],
+  "logs": []
+}
