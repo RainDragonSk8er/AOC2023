@@ -94,28 +94,26 @@ local function func2 (path, hash_map)
     end
     for line in i_file:lines("L") do
         local entry = string.lower(line)
-        if entry:match("^%l.+$") then
+        if entry:match("^%l+.+\n$") then --pattern match: "^%w+$"
             local changed_string = Find_n_replace(line, StrToInt_dict, false)
             -- print(line, "->", changed_string)
             entry = string.gsub(entry, line, changed_string)    
         end
-        if entry:match("^.+%l") then
-            local changed_string_rev = Find_n_replace(entry, StrToInt_dict, true)
-            -- print("\t", entry, "->", changed_string_rev)
-            entry = string.gsub(entry, entry, changed_string_rev)    
+        if entry:match("^.+%l+\n$") then --pattern match: "^%w+$"
+            local changed_string = Find_n_replace(entry, StrToInt_dict, true)
+            -- print("\t", entry, "->", changed_string)
+            entry = string.gsub(entry, entry, changed_string)    
         end
     
-        
-        
         local numbers = {}
         for num in string.gmatch(entry, "%d") do
-            numbers[#numbers+1] = num
-            
+            numbers[#numbers+1] = num        
         end
-        print("Processed string:", entry)
+        local out_str = {string.gsub(entry, "\n", "")}
+        -- print("Processed string:", Dump_table(out_str))
         -- print("numbers table:", Dump_table(numbers))
         local num_str = numbers[1]..numbers[#numbers]
-        print("Final value", num_str)
+        -- print("Final value", num_str)
         local num_int = tonumber(num_str, 10)
         cum_sum = cum_sum + num_int
     end
