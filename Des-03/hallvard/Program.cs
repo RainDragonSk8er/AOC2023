@@ -43,7 +43,7 @@ using (StreamReader inputFile = new StreamReader(inputPath))
     Console.WriteLine("The answer to part two is: " + answer2.ToString());
     inputFile.Close();
 }
-//Console.WriteLine("Hit any key to exit!");
+Console.WriteLine("Hit any key to exit!");
 Console.ReadKey();
 
 int FoundParts(int searchline, int maxline)
@@ -123,7 +123,6 @@ int FoundGears(int searchline, int maxline)
                 {
                     if (!(l == searchline && j == i)) // Skipp star position
                         if (char.IsDigit(lines[l][j])) { GearLine2 = l; GearDigitPos2 = j; break; }
-
                 }
             }
             if (GearLine1 != -1 && GearLine2 != -1)
@@ -140,7 +139,7 @@ int FoundGears(int searchline, int maxline)
                         {
                             Gear1 = Gear1 + (int)Math.Pow(10, GearDigitPos1 - j) * int.Parse(lines[GearLine1][j].ToString());
                         }
-                        for (int j = GearDigitPos1 + 1; j < lines[GearLine1].Length - 1 && char.IsDigit(lines[GearLine1][j]); j++) // Digits to the left?
+                        for (int j = GearDigitPos1 + 1; j < lines[GearLine1].Length && char.IsDigit(lines[GearLine1][j]); j++) // Digits to the left?
                         {
                             Gear1 = Gear1 * 10 + int.Parse(lines[GearLine1][j].ToString());
                         }
@@ -149,13 +148,12 @@ int FoundGears(int searchline, int maxline)
                         {
                             Gear2 = Gear2 + (int)Math.Pow(10, GearDigitPos2 - j) * int.Parse(lines[GearLine2][j].ToString());
                         }
-                        for (int j = GearDigitPos2 + 1; j < lines[GearLine2].Length - 1 && char.IsDigit(lines[GearLine2][j]); j++) // Digits to the left?
+                        for (int j = GearDigitPos2 + 1; j < lines[GearLine2].Length && char.IsDigit(lines[GearLine2][j]); j++) // Digits to the left?
                         {
                             Gear2 = Gear2 * 10 + int.Parse(lines[GearLine2][j].ToString());
                         }
 
                         sumoffoundgears += Gear1 * Gear2;
-                        // Console.WriteLine("Found a Gear at position {0} with partnumbers {1} and {2}", i, Gear1, Gear2);
                         Console.BackgroundColor = ConsoleColor.Green;
                     }
                 }
