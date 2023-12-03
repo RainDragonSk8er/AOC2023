@@ -1,7 +1,7 @@
 
-PATH: str = "input/puzzle_input.txt"
-TEST_PATH_1: str = "input/test1_input.txt"
-TEST_PATH_2: str = "input/test2_input.txt"
+PATH: str = "Des-01/jonathan/input/puzzle_input.txt"
+TEST_PATH_1: str = "Des-01/jonathan/input/test1_input.txt"
+TEST_PATH_2: str = "Des-01/jonathan/input/test2_input.txt"
 
 
 def func1(path: str):

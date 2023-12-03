@@ -1,7 +1,7 @@
 
-PATH: str = "Des2/jonathan/input/puzzle_input.txt"
-TEST_PATH_1: str = "Des2/jonathan/input/test1_input.txt"
-TEST_PATH_2: str = "Des2/jonathan/input/test2_input.txt"
+PATH: str = "Des-02/jonathan/input/puzzle_input.txt"
+TEST_PATH_1: str = "Des-02/jonathan/input/test1_input.txt"
+TEST_PATH_2: str = "Des-02/jonathan/input/test2_input.txt"
 
 LIMITS_DICT_1: dict[str, int] = {
     "red": 12,
