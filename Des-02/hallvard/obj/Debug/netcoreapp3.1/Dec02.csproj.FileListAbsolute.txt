@@ -26,3 +26,17 @@ C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC20
 C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des2\hallvard\obj\Debug\netcoreapp3.1\Dec02.dll
 C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des2\hallvard\obj\Debug\netcoreapp3.1\Dec02.pdb
 C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des2\hallvard\obj\Debug\netcoreapp3.1\Dec02.genruntimeconfig.cache
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\bin\Debug\netcoreapp3.1\Dec02.exe
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\bin\Debug\netcoreapp3.1\Dec02.deps.json
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\bin\Debug\netcoreapp3.1\Dec02.runtimeconfig.json
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\bin\Debug\netcoreapp3.1\Dec02.runtimeconfig.dev.json
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\bin\Debug\netcoreapp3.1\Dec02.dll
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\bin\Debug\netcoreapp3.1\Dec02.pdb
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.AssemblyInfoInputs.cache
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.AssemblyInfo.cs
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.csproj.CoreCompileInputs.cache
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.sourcelink.json
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.dll
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.pdb
+C:\Users\Hallvard\revisoft.no\Revisoft Intranett - Kodesenter\AdventOfCode\AOC2023\Des-02\hallvard\obj\Debug\netcoreapp3.1\Dec02.genruntimeconfig.cache

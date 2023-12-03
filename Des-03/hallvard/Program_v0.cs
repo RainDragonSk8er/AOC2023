@@ -1,4 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿/*
+// See https://aka.ms/new-console-template for more information
 
 using System.Runtime.CompilerServices;
 
@@ -94,51 +95,69 @@ int FoundParts(int searchline, int maxline)
 
     return sumoffoundparts;
 }
-
 int FoundGears(int searchline, int maxline)
 {
     int sumoffoundgears = 0;
-    int gearRatio, gearParts, gearPart;
+    int GearLine1, GearLine2;
+    int GearDigitPos1, GearDigitPos2;
 
     for (int i = 0; i < lines[searchline].Length; i++)
     {
         if (lines[searchline][i].ToString() == "*")
         {
-            gearRatio = 1;
-            gearParts = 0;
+            GearLine1 = GearLine2 = -1;
+            GearDigitPos1 = GearDigitPos2 = -1;
             Console.ForegroundColor = ConsoleColor.Black;
             Console.BackgroundColor = ConsoleColor.Red;
 
-            for (int l = Math.Max(0, searchline - 1); l <= maxline; l++)
+            for (int l = Math.Max(0, searchline - 1); GearLine1 == -1 && l <= maxline; l++)
             {
                 for (int j = Math.Max(0, i - 1); j <= Math.Min(i + 1, lines[l].Length - 1); j++)
                 {
                     if (!(l == searchline && j == i)) // Skipp star position
-                    {
-                        if (char.IsDigit(lines[l][j]))
-                        {
-                            gearParts++;
-                            gearPart = int.Parse(lines[l][j].ToString());
-                            int k;
-                            for (k = -1; j + k >= 0 && char.IsDigit(lines[l][j+k]); k--) // Look left
-                            {
-                                gearPart += (int)Math.Pow(10, -k) * int.Parse(lines[l][j+k].ToString());
-                            }
-                            for (k = 1; j + k < lines[l].Length && char.IsDigit(lines[l][j+k]); k++) // Look right
-                            {
-                                gearPart = gearPart * 10 + int.Parse(lines[l][j+k].ToString());
-                            }
-                            j += k;
-                            gearRatio *= gearPart;
-                        }
-                    }
+                        if (char.IsDigit(lines[l][j])) { GearLine1 = l; GearDigitPos1 = j; break; }
                 }
             }
-
-            if (gearParts == 2) // If exactly two partnumber adjacent to *
+            for (int l = maxline; GearLine2 == -1 && l >= Math.Max(0, searchline - 1); l--)
             {
-                sumoffoundgears += gearRatio;
-                Console.BackgroundColor = ConsoleColor.Green;
+                for (int j = Math.Min(i + 1, lines[l].Length - 1); j >= Math.Max(0, i - 1); j--)
+                {
+                    if (!(l == searchline && j == i)) // Skipp star position
+                        if (char.IsDigit(lines[l][j])) { GearLine2 = l; GearDigitPos2 = j; break; }
+                }
+            }
+            if (GearLine1 != -1 && GearLine2 != -1)
+            {
+                if (!(GearLine1 == GearLine2 && GearDigitPos2 - GearDigitPos1 <= 1)) // Ikke samme tall/siffer
+                {
+                    if (!(GearLine1 == GearLine2 && GearDigitPos2 - GearDigitPos1 == 2 &&
+                          char.IsDigit(lines[GearLine1][GearDigitPos1+1]))) // Ikke samme tall/siffer
+                    {
+                        int Gear1 = int.Parse(lines[GearLine1][GearDigitPos1].ToString());
+                        int Gear2 = int.Parse(lines[GearLine2][GearDigitPos2].ToString());
+
+                        for (int j = GearDigitPos1 - 1; j >= 0 && char.IsDigit(lines[GearLine1][j]); j--) // Digits to the left?
+                        {
+                            Gear1 = Gear1 + (int)Math.Pow(10, GearDigitPos1 - j) * int.Parse(lines[GearLine1][j].ToString());
+                        }
+                        for (int j = GearDigitPos1 + 1; j < lines[GearLine1].Length && char.IsDigit(lines[GearLine1][j]); j++) // Digits to the left?
+                        {
+                            Gear1 = Gear1 * 10 + int.Parse(lines[GearLine1][j].ToString());
+                        }
+
+                        for (int j = GearDigitPos2 - 1; j >= 0 && char.IsDigit(lines[GearLine2][j]); j--) // Digits to the left?
+                        {
+                            Gear2 = Gear2 + (int)Math.Pow(10, GearDigitPos2 - j) * int.Parse(lines[GearLine2][j].ToString());
+                        }
+                        for (int j = GearDigitPos2 + 1; j < lines[GearLine2].Length && char.IsDigit(lines[GearLine2][j]); j++) // Digits to the left?
+                        {
+                            Gear2 = Gear2 * 10 + int.Parse(lines[GearLine2][j].ToString());
+                        }
+
+                        sumoffoundgears += Gear1 * Gear2;
+                        Console.BackgroundColor = ConsoleColor.Green;
+                    }
+                }
             }
         }
         Console.Write(lines[searchline][i].ToString());
@@ -147,3 +166,4 @@ int FoundGears(int searchline, int maxline)
     Console.WriteLine();
     return sumoffoundgears;
 }
+*/
