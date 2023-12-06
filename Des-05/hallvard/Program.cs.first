@@ -1,0 +1,79 @@
+﻿// See https://aka.ms/new-console-template for more information
+
+using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
+
+Console.WriteLine("Hello World on December 5th 2023!");
+string inputPath = @"..\..\..\AOC2023-05-Input.txt";
+using (StreamReader inputFile = new StreamReader(inputPath))
+{
+    UInt64 answer = 0, answer2 = 0;
+
+    List<PlantStep> plantSteps = new List<PlantStep>();
+    int fromindex = 0, toindex = 0;
+    string[] currentmap;
+
+    string line = inputFile.ReadLine();
+
+    if (line.Length < 8 || line.Substring(0, 7) != "seeds: ")
+    {
+        Console.WriteLine("Error! The first line of input must start with 'seeds:'!");
+    }
+    else
+    {
+        plantSteps.Add(new PlantStep
+        {
+            Name = "seed",
+            Values = line.Substring(7, line.Length - 7).Split().Select(UInt64.Parse).ToArray()
+        });
+    }
+    while ((line = inputFile.ReadLine()) != null)
+    {
+        if (line.Length > 5 && line.Substring(line.Length - 5, 5) == " map:")
+        {
+            currentmap = line.Substring(0, line.Length - 5).Split("-to-");
+            fromindex = plantSteps.FindIndex(item => item.Name == currentmap[0]);
+
+            plantSteps.Add(new PlantStep { Name = currentmap[1], Values = (UInt64[])plantSteps[fromindex].Values.Clone() });
+            toindex = plantSteps.Count - 1;
+        }
+        else if (line.Length > 5 ) // Line with three map-numbers (minimum one digit)
+        {
+            UInt64[] mapnumbers = line.Split().Select(UInt64.Parse).ToArray();
+            for (int i = 0; i < plantSteps[fromindex].Values.Length; i++)
+            {
+                if (plantSteps[fromindex].Values[i] >= mapnumbers[1] && plantSteps[fromindex].Values[i] < mapnumbers[1] + mapnumbers[2])
+                {
+                    plantSteps[toindex].Values[i] += (mapnumbers[0] - mapnumbers[1]);
+                }
+            }
+        }
+    }
+    // Find the lowest answer in the latest plant step
+    answer = plantSteps[toindex].Values[0];
+    for (int i = 1;  i < plantSteps[toindex].Values.Length; i++)
+    {
+        if (plantSteps[toindex].Values[i] < answer)
+            answer = plantSteps[toindex].Values[i];
+    }
+    foreach (PlantStep step in plantSteps)
+    {
+        Console.Write("{0}: ", step.Name);
+        foreach (int number in step.Values)
+        {
+            Console.Write("{0}, ", number);
+        }
+        Console.WriteLine();
+    }
+    Console.WriteLine("The answer to part one is: " + answer.ToString());
+    // Console.WriteLine("The answer to part two is: " + answer2.ToString());
+    inputFile.Close();
+}
+Console.WriteLine("Hit any key to exit!");
+Console.ReadKey();
+
+public class PlantStep
+{
+    public string Name { get; set; }
+    public UInt64[] Values { get; set; }
+}
