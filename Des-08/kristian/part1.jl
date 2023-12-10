@@ -75,8 +75,7 @@ function solveproblem2(filename;maxiter=Inf)
         right = line[13:15]
         D[node] = (left, right)
     end
-    foundzzz = false
-    instructionlength = length(instructions)
+
     global i = 1
     global node = "AAA"
     nodes = collect(filter(x -> x[3]=='A', keys(D)))
@@ -92,6 +91,55 @@ function solveproblem2(filename;maxiter=Inf)
     end
     return i + 1
 end
+
+filename="testinput3.txt"
+filename = "input.txt"
+lines = readlines(filename)
+
+instructions = lines[1]
+
+global D = Dict()
+
+for line in lines[3:end]
+    node = line[1:3]
+    left = line[8:10]
+    right = line[13:15]
+    D[node] = (left, right)
+end
+
+global i = 1
+global node = "AAA"
+startnodes = collect(filter(x -> x[3]=='A', keys(D)))
+
+cycles = zeros(Int, length(startnodes))
+L = length(instructions)
+for (isn, startnode) in enumerate(startnodes)
+    node = startnode
+    for (i, instruction) in enumerate(Iterators.cycle(instructions))
+        node = D[node][(instruction == 'R') + 1]
+        if node[3] == 'Z'
+            println("Startnode: $startnode, Z-node: $node ! i = $i")
+            cycles[isn] = i
+            break
+        end
+        if node == startnode
+            println("reached startnode, i = $i")
+        end
+        if mod(i, L)==1 && node == startnode
+            println("Startnode: $startnode Full cycle @ i = $i")
+            break
+        end
+        if i > 100_000
+            return "TOO FAR!, i = $i"
+        end
+    
+    end
+end
+
+cycles
+lcm(cycles...)
+
+
 @time solveproblem("testinput1.txt")
 @time solveproblem("testinput2.txt")
 @time solveproblem("input.txt")
