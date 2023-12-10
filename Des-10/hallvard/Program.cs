@@ -99,7 +99,8 @@ using (StreamReader inputFile = new StreamReader(inputPath))
         {
             if (inside && c == '.')
             {
-                Console.Write('0');
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.Write('I');
                 answer2++;
             }
             else
@@ -114,6 +115,7 @@ using (StreamReader inputFile = new StreamReader(inputPath))
                         inside = !inside;
                     }
                 }
+                Console.BackgroundColor = ConsoleColor.Black;
                 Console.Write(c);
             }
         }
