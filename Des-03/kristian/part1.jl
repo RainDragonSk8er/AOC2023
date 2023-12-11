@@ -1,16 +1,18 @@
-lines = readlines("input.txt")
+fn = "test1.txt"
+lines = readlines(fn)
 for i in eachindex(lines)
     lines[i] = string('.', lines[i], '.')
 end
+L = length(lines)
 
-pushfirst!(lines, join(['.' for i in 1:142]))
-push!(lines, join(['.' for i in 1:142]))
+pushfirst!(lines, join(['.' for i in 1:L+2]))
+push!(lines, join(['.' for i in 1:L+2]))
 
 
 
 pattern = integer_pattern = r"\d+"
 tot = 0
-for i in 2:141
+for i in 2:L+1
     line = lines[i]
     matches = eachmatch(pattern, line)
     for match in matches
@@ -30,4 +32,5 @@ for i in 2:141
 
 
 end
+
 tot
