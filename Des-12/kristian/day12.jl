@@ -1,6 +1,4 @@
-fn = "input.txt"
-fn = "test1.txt"
-lines = readlines(fn)
+using Combinatorics
 
 #M = reduce(vcat, permutedims.(collect.(lines)))
 function CheckSprings(springs, config)
@@ -30,12 +28,21 @@ function FindCombinations(lines; multiplier=0)
         totalsprings = sum(config)
         unknowns = length(filter(x -> x =='?', parts[1]))
         qpos  = collect(parts[1]) .== '?'
-        for i in 1:2^unknowns
-            combination = digits(i-1, base=2, pad=unknowns) |> reverse
+        
+        numberOfNewHashes = totalsprings - numhashtags
+        s = ("1"^numberOfNewHashes)*("0"^(unknowns-numberOfNewHashes))
+        icomb = 0
+        for combinationvec in multiset_permutations(s, length(s))
+            icomb += 1
+            # println(combinationvec)
+            combString = join(combinationvec)
+            # combination = digits(i-1, base=2, pad=unknowns) |> reverse
+            combination = digits(parse(Int, combString, base=2), base=2, pad=length(s))
             if sum(combination) !== (totalsprings - numhashtags)
                 continue
             end
             hashtags, dots = copy(qpos), copy(qpos)
+            # println("$hashtags, $qpos, $combination")
             hashtags[qpos] = combination
             dots[qpos] = (combination .==0)
             vector = collect(parts[1])
@@ -44,7 +51,7 @@ function FindCombinations(lines; multiplier=0)
             springs = join(vector)
             valid = CheckSprings(springs, config)
             # if valid
-            #     println("valid: i =$i, $springs")
+            #     println("valid: i =$icomb, $springs")
             # end
             tot += valid
         end
@@ -52,9 +59,14 @@ function FindCombinations(lines; multiplier=0)
     return tot
 end
 
+fn = "input.txt"
+fn = "test1.txt"
+
+
+lines = readlines(fn)
 tot = 0
 @time for (l, line) in enumerate(lines)
-    println(l)
+    # println(l)
     parts = split(line, ' ')
     config = parse.(Int64, split(parts[2], ','))
     numhashtags = sum(collect(parts[1]) .== '#')
@@ -82,9 +94,7 @@ tot = 0
 end
 tot
 
-using Profile
-using PProf
-Profile.clear()
-@profile FindCombinations(lines, multiplier=2)
-pprof()
+
+@time FindCombinations(lines, multiplier=3)
+
 #springs = filter(x-> !isempty(x), split(parts[1], '.'))
