@@ -71,7 +71,7 @@ using (StreamReader inputFile = new StreamReader(inputPath))
                 + (ExpUniverse[j].row > ExpUniverse[i].row ? ExpUniverse[j].row - ExpUniverse[i].row : ExpUniverse[i].row - ExpUniverse[j].row);
         }
     }
-    Console.WriteLine("The answer to part two is: {0}", answer);
+    Console.WriteLine("The answer is: {0}", answer);
     Console.WriteLine("Hit any key to exit!");
     Console.ReadKey();
 }

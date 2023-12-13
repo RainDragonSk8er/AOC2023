@@ -1,0 +1,114 @@
+﻿// See https://aka.ms/new-console-template for more information
+using System;
+using System.Collections.Immutable;
+
+class Program
+{
+    public static int answer = 0;
+
+    static void Main()
+    {
+        Console.WriteLine("Hello World on December 12th 2023!");
+
+        string inputPath = @"..\..\..\AOC2023-12-TestInput.txt";
+        using (StreamReader inputFile = new StreamReader(inputPath))
+        {
+            string line;
+
+            // Read input and expand lines (y-axis)
+            while ((line = inputFile.ReadLine()) != null)
+            {
+                string[] segments = line.Split(" ");
+                int[] counts = segments[1].Split(",").Select(int.Parse).ToArray();
+
+                // Part 1
+                Console.WriteLine("New line: '{0}'.", line);
+                PossibleArrangement(segments[0].ToCharArray(), counts, 0, segments[0].Count(c => c == '?'));
+                Console.WriteLine(" Running total is {0}", answer);
+
+                /*// Part 2
+                int[] counts5 = counts.Concat(counts).Concat(counts).Concat(counts).Concat(counts).ToArray();
+                string mapx5 = string.Join("?", Enumerable.Repeat(segments[0], 5));
+                Console.WriteLine("New line: '{0}'.", mapx5);
+                PossibleArrangement(mapx5.ToCharArray(), counts5, 0, mapx5.Count(c => c == '?'));
+                Console.WriteLine(" Running total is {0}", answer);*/
+
+            }
+            Console.WriteLine("The answer to part one is: {0}", answer);
+            Console.WriteLine("Hit any key to exit!");
+            Console.ReadKey();
+        }
+    }
+
+    static void PossibleArrangement(char[] springInput, int[] brokenSpringStreaks, int i, int unknowns)
+    {
+        // Console.WriteLine("Trying input: {0} position {1} with remaining unknowns {2}", new string(springInput), i, unknowns);
+
+        while (i < springInput.Length && unknowns > 0)
+        {
+            if (springInput[i] == '?')
+            {
+                unknowns--;
+                springInput[i] = '#';
+                PossibleArrangement((char[])springInput.Clone(), brokenSpringStreaks, i, unknowns);
+                springInput[i] = '.';
+                PossibleArrangement((char[])springInput.Clone(), brokenSpringStreaks, i, unknowns);
+                return;
+            }
+            i++;
+        }
+        // Test for success
+        int j = -1, remainingStreakCount = 0;
+        bool instreak = false;
+        for (i = 0; i < springInput.Length; i++)
+        {
+            switch(springInput[i])
+            {
+                case '#':
+                    if (!instreak)
+                    {
+                        if (++j < brokenSpringStreaks.Length)
+                        {
+                            remainingStreakCount = brokenSpringStreaks[j];
+                            instreak = true;
+                        }
+                        else // Found new '#' byond end of streaks
+                        {
+                            return;
+                        }
+                    }
+                    remainingStreakCount--;
+                    if (remainingStreakCount < 0)
+                    {
+                        // Console.WriteLine(" Fail! Streak {0} of length {1} is too long at position {2}", j, brokenSpringStreaks[j], i);
+                        return;
+                    }
+                    break;
+
+                case '.':
+                    if (instreak)
+                    {
+                        if (remainingStreakCount == 0) // Next streak
+                        {
+                            instreak = false;
+                        }
+                        else if (remainingStreakCount > 0)
+                        {
+                            // Console.WriteLine(" Fail! Streak {0} of length {1} is too short at position {2}", j, brokenSpringStreaks[j], i);
+                            return;
+                        }
+                    }
+                    break;
+
+                default:
+                    Console.WriteLine("Illegal character {0} in string '{1}' position {2}", springInput[i], new string(springInput), i);
+                    break;
+            }
+        }
+        if (remainingStreakCount == 0 && j == brokenSpringStreaks.Length - 1)
+        {
+            Console.WriteLine("Success with '{0}'! All broken springs accounted for.", new string(springInput));
+            answer++;
+        }
+    }
+}
