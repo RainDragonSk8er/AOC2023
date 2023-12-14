@@ -2,5 +2,6 @@
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
 Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+Memoization = "6fafb56a-5788-4b4e-91ca-c0cea6611c73"
 PProf = "e4faabce-9ead-11e9-39d9-4379958e3056"
 Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"

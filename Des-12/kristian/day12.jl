@@ -1,4 +1,5 @@
 using Combinatorics
+using Memoization
 
 #M = reduce(vcat, permutedims.(collect.(lines)))
 function CheckSprings(springs, config)
