@@ -1,5 +1,5 @@
-
-function moverocks(lines)
+using Memoization
+@memoize function moverocks(lines)
     for (i, line) in enumerate(lines[1:end])
         if i == 1
             continue
@@ -34,7 +34,31 @@ function loadcalc(lines)
     end
     return tot
 end
-
+@memoize function bruteforcecycle(lines, cycles)
+    rotations = 4*cycles
+    oldlines = lines
+    for c in 1:cycles
+        lines = cycle(lines)
+        # println("lines:$lines \n oldlines=$oldlines")
+        if lines == oldlines
+            println("no change after $c cycles")
+            return lines
+        end
+        oldlines = copy(lines)
+        # println("$oldlines")
+    end
+    return lines
+end
+@memoize function cycle(lines)
+    for r in 1:4
+        lines = moverocks(lines)
+        M = reduce(vcat, permutedims.(collect.(lines)))
+        M = rotr90(M)
+        lines = [join(M[row, :]) for row in 1:size(M,1)]
+        # println(oldlines)
+    end
+    return lines
+end
 
 
 fn = "input.txt"
@@ -57,31 +81,33 @@ fn = "input.txt"
 fn = "test1.txt"
 
 lines = readlines(fn)
-cycles = 3
-cycles = 1_000_000_000
-@time bruteforcecycle(lines, 100_001)
+# cyclestarget = 100
+cyclestarget = 1_000_000_000
+@time cycled = bruteforcecycle(copy(lines), 200)
+# println(cycled)
 
-
-
-
-function bruteforcecycle(lines, cycles)
-    rotations = 4*cycles
-    oldlines = lines
-    for c in 1:cycles
-        for r in 1:4
-            lines = moverocks(lines)
-            M = reduce(vcat, permutedims.(collect.(lines)))
-            M = rotr90(M)
-            lines = [join(M[row, :]) for row in 1:size(M,1)]
-            # println(oldlines)
+start = 120
+searchcycles = 150
+stop = false
+i = -1
+repeater = 0
+while !stop && i <= searchcycles
+    i+= 1
+    println("i = $i")
+    cycled = bruteforcecycle(copy(lines), i)
+    for j in 1:10
+        cyccycled = bruteforcecycle(copy(cycled), j)
+        if cyccycled == cycled
+            println("state after $i cycles repeated after another $j cycles")
+            repeater = j
+            stop = true
+            break
         end
-        # println("lines:$lines \n oldlines=$oldlines")
-        if lines == oldlines
-            println("no change after $c cycles")
-            return lines
-        end
-        oldlines = copy(lines)
-        # println("$oldlines")
     end
-    return lines
 end
+
+cyclesleft = mod(cyclestarget - i, repeater)
+docycles = i + cyclesleft
+endcycled = bruteforcecycle(lines, docycles)
+loadcalc(endcycled)
+
