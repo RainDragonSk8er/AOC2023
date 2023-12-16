@@ -17,13 +17,13 @@ class Program
         // rr = roundrocks (O), sr = squarerocks (#)
         List<PosIDPair>[] rrNS = new List<PosIDPair>[inputdimensions];
         List<PosIDPair>[] rrWE = new List<PosIDPair>[inputdimensions];
-        List<int>[] srNS = new List<int>[inputdimensions];
-        List<int>[] srWE = new List<int>[inputdimensions];
+        // List<int>[] srNS = new List<int>[inputdimensions];
+        // List<int>[] srWE = new List<int>[inputdimensions];
 
         List<char[]> rows = new List<char[]>();
         List<char[]> savedrows = new List<char[]>();
         int i = 0, answer = 0, answer2 = 0;
-        int repeats = 1, rockID = 0, row = 0;
+        int repeats = 1, rrockID = 0, srockID = 0, row = 0;
         Console.WriteLine("Hello World on December 14th 2023!");
 
         // Creating list objects for each element in the arrays
@@ -31,8 +31,8 @@ class Program
         {
             rrNS[i] = new List<PosIDPair>();
             rrWE[i] = new List<PosIDPair>();
-            srNS[i] = new List<int>();
-            srWE[i] = new List<int>();
+            // srNS[i] = new List<int>();
+            // srWE[i] = new List<int>();
         }
         string inputPath = @"..\..\..\AOC2023-14-TestInput.txt";
         using (StreamReader inputFile = new StreamReader(inputPath))
@@ -47,30 +47,31 @@ class Program
                         case '.': // space
                             break;
                         case 'O': // roundrock populate NS only
-                            rrNS[i].Add(new PosIDPair(row, ++rockID));
+                            rrNS[i].Add(new PosIDPair(row, ++rrockID));
                             break;
                         case '#': // squarerock
-                            srNS[i].Add(row);
-                            srWE[row].Add(i);
+                            rrNS[i].Add(new PosIDPair(row, --srockID));
+                            // srNS[i].Add(row);
+                            // srWE[row].Add(i);
                             break;
                     }
                 }
                 row++;
             }
-            Console.WriteLine("Initial round rockcount is {0}", rockID);
+            Console.WriteLine("Initial rockcount is {0} round and {1} square", rrockID, -srockID);
             Console.ReadKey();
         }
         // Perform initial tilts
         for (i = 0; i < repeats; i++)
         {
             PrintPlatform(rrNS);
-            TiltAndTurn(rrNS, rrWE, srNS, 1);
+            TiltAndTurn(rrNS, rrWE);
             PrintPlatform(rrWE);
-            TiltAndTurn(rrWE, rrNS, srWE, 1);
+            TiltAndTurn(rrWE, rrNS);
             PrintPlatform(rrNS);
-            TiltAndTurn(rrNS, rrWE, srNS, -1);
+            TiltAndTurn(rrNS, rrWE);
             PrintPlatform(rrWE);
-            TiltAndTurn(rrWE, rrNS, srWE, -1);
+            TiltAndTurn(rrWE, rrNS);
             PrintPlatform(rrNS);
             // 
         }
@@ -82,7 +83,31 @@ class Program
         Console.ReadKey();
     }
 
-    static void TiltAndTurn(List<PosIDPair>[] roundin, List<PosIDPair>[] roundout, List<int>[] squares, int direction)
+    static void TiltAndTurn(List<PosIDPair>[] roundin, List<PosIDPair>[] roundout)
+    {
+        // Clear all output lists
+        for (int i = 0; i < inputdimensions; i++)
+        {
+            roundout[i].Clear();
+        }
+
+        // Start tilt and turn
+        for (int i = 0; i < inputdimensions; i++)
+        {
+            int cantiltto = 0;
+            foreach (PosIDPair pip in roundin[i])
+            {
+                if (pip.ID < 0) // Square rock
+                {
+                    cantiltto = pip.Pos;
+                }
+                roundout[inputdimensions - cantiltto - 1].Add(new PosIDPair(i, pip.ID));
+                cantiltto++;
+            }
+        }
+    }
+
+    static void OLD_TiltAndTurn(List<PosIDPair>[] roundin, List<PosIDPair>[] roundout, List<int>[] squares, int direction)
     {
         // Clear all output lists
         for (int i = 0; i < inputdimensions; i++)
@@ -124,7 +149,7 @@ class Program
                 while (j++ < pip.Pos)
                     Console.Write('.');
 
-                Console.Write('O');
+                Console.Write((pip.ID > 0) ? 'O' : '#');
             }
             while (j++ < inputdimensions)
                 Console.Write('.');
