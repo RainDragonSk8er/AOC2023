@@ -69,8 +69,24 @@ start = State((1,1), (0,0), 0, straightmovesmax)
 @time result = astar(neighbors, start, goal, cost=cost, isgoal=isgoal)
 result.cost
 result.path
-#tried 1365, 1362*
+#solution part 2: 1362
 #AStarSearch
+#animation
+using Plots
+heatmap(M, colorbar=false, axes=false, xticks=nothing, yticks=nothing)
+currentPlot = current()
+yflip!(currentPlot)
+anim = Animation()
+for i in 2:length(result.path)
+    x1, y1 = result.path[i].pos
+    x2, y2 = result.path[i-1].pos
+    plot!([x1, x2], [y1, y2], legend=false, color=:blue, lw=3)
+    frame(anim)  # Capture each frame
+end
+gif(anim, "path_animation.gif", fps = 25)  # Adjust fps (frames per second) as needed
+
+
+
 struct State
     pos::Tuple
     dir::Tuple
