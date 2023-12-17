@@ -1,92 +1,4 @@
-using Memoization
 using AStarSearch
-
-
-@memoize function ShortestPath(pos, dir, straightmoves, level)
-    debug ? println("Pos:$pos, Dir:$dir, sm:$straightmoves, level:$level") : nothing
-    bounds = [size(M)[1], size(M)[2]]
-    if pos == bounds
-        debug ? println("reached end") : nothing
-        # error("reached end")
-        return [], M[pos[1], pos[2]]
-    end
-    directions = [[1,0], [-1,0], [0,1], [0,-1]]
-    possibledirections = directions
-    setdiff!(possibledirections, [-dir])
-    if straightmoves == straightmovesmax
-        setdiff!(possibledirections, [dir])
-    end
-    if bounds in (possibledirections .+ Ref(pos))
-        debug ? println("Adjacent to goal!") : nothing
-        return [[bounds - pos]], M[pos[1], pos[2]] + M[bounds[1], bounds[2]]
-    end
-
-    choices = [[], []]
-    for (i, step) in enumerate(possibledirections)
-        if all([1,1] .<= pos + step .<= bounds)
-            newstraightmoves = step == dir ? straightmoves + 1 : 1
-            moves, val = ShortestPath(pos + step, step, newstraightmoves, level+1)
-            debug ? println("Got something!pos:$pos") : nothing
-            push!(choices[1], step)
-            push!(choices[2], val)
-        end
-    end
-    besti = argmin(choices[2])
-    beststep = choices[1][besti]
-    value = choices[2][besti] + M[pos[1], pos[2]]
-    push!(moves, beststep)
-    debug ? println("Done at pos:$pos, dir:$dir. Value:$value") : nothing
-    error()
-    return  moves, value
-end
-
-# moves, value = ShortestPath([1,1], [1,0], 1, 1)
-
-
-#testing
-bounds = [size(M)[1], size(M)[2]]
-dir = [1,0]
-pos = [12,13]
-straightmoves = 1
-step = [1,0]
-[1,1] .<= pos + step .<= bounds
-state = start
-
-#-
-fn = "input.txt"
-fn = "test1.txt"
-fn = "test2.txt"
-
-lines = readlines(fn)
-
-global M = parse.(Int, reduce(vcat, permutedims.(collect.(lines))))
-
-global debug = false
-global straightmovesmin = 4
-global straightmovesmax = 10
-goal = State(size(M), (0,1), 1,straightmovesmax)
-start = State((1,1), (0,0), 0, straightmovesmax)
-@time result = astar(neighbors, start, goal, cost=cost, isgoal=isgoal)
-result.cost
-result.path
-#solution part 2: 1362
-#AStarSearch
-#animation
-using Plots
-heatmap(M, colorbar=false, axes=false, xticks=nothing, yticks=nothing)
-currentPlot = current()
-yflip!(currentPlot)
-anim = Animation()
-for i in 2:length(result.path)
-    x1, y1 = result.path[i].pos
-    x2, y2 = result.path[i-1].pos
-    plot!([x1, x2], [y1, y2], legend=false, color=:blue, lw=3)
-    frame(anim)  # Capture each frame
-end
-gif(anim, "path_animation.gif", fps = 25)  # Adjust fps (frames per second) as needed
-
-
-
 struct State
     pos::Tuple
     dir::Tuple
@@ -117,7 +29,7 @@ function neighbors(state::State)
             newstraightmoves = state.straightmoves + 1
         else
             steplength = straightmovesmin
-            newstraightmoves = 4
+            newstraightmoves = straightmovesmin
         end
         
         if !all((1,1) .<= state.pos .+ (steplength .* step) .<= size(M))
@@ -140,3 +52,43 @@ function cost(state::State, nb::State)
     c = sum(M[istart:iend, jstart:jend]) - M[si, sj]
     return c
 end
+fn = "input.txt"
+fn = "test1.txt"
+fn = "test2.txt"
+
+lines = readlines(fn)
+
+global M = parse.(Int, reduce(vcat, permutedims.(collect.(lines))))
+
+global debug = false
+global straightmovesmin = 4
+global straightmovesmax = 10
+goal = State(size(M), (0,1), 1,straightmovesmax)
+start = State((1,1), (0,0), 0, straightmovesmax)
+@time result2 = astar(neighbors, start, goal, cost=cost, isgoal=isgoal)
+result.cost
+result.path
+#solution part 2: 1362
+#AStarSearch
+#animation
+using Plots
+heatmap(M, colorbar=false, axis=false, xticks=nothing, yticks=nothing)
+currentPlot = current()
+yflip!(currentPlot)
+anim = Animation()
+for i in 2:length(result1.path)
+    x1, y1 = result1.path[i].pos
+    x2, y2 = result1.path[i-1].pos
+    plot!([x1, x2], [y1, y2], legend=false, color=:green, lw=3)
+    frame(anim)  # Capture each frame
+end
+for i in 2:length(result2.path)
+    x1, y1 = result2.path[i].pos
+    x2, y2 = result2.path[i-1].pos
+    plot!([x1, x2], [y1, y2], legend=false, color=:blue, lw=3)
+    frame(anim)  # Capture each frame
+end
+gif(anim, "path_animation.gif", fps = 25)  # Adjust fps (frames per second) as needed
+
+
+
