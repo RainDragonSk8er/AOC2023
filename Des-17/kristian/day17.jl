@@ -65,7 +65,7 @@ global straightmovesmin = 4
 global straightmovesmax = 10
 goal = State(size(M), (0,1), 1,straightmovesmax)
 start = State((1,1), (0,0), 0, straightmovesmax)
-@time result2 = astar(neighbors, start, goal, cost=cost, isgoal=isgoal)
+@time results = astar(neighbors, start, goal, cost=cost, isgoal=isgoal)
 result.cost
 result.path
 #solution part 2: 1362
