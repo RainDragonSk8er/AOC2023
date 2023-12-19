@@ -97,7 +97,7 @@ wfA =  Dict()
 wf = "in"
 v = [(1,4000), (1,4000), (1,4000), (1,4000)]
 debug = false
-totcombs = findCombs(wf, v)
+@time totcombs = findCombs(wf, v)
 
 
 
