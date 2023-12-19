@@ -1,0 +1,168 @@
+﻿// See https://aka.ms/new-console-template for more information
+using System;
+using System.Drawing;
+using System.Text.RegularExpressions;
+using System.Collections.Immutable;
+using System.Diagnostics;
+
+class Program
+{
+    //public const int xdimensions = 7, ydimensions = 10;
+    public const int xdimensions = 441, ydimensions = 322;
+
+    static Trench[,] trenches = new Trench[xdimensions, ydimensions];
+    static int[] fillxdir = { 1, 0, -1, 0 };
+    static int[] fillydir = { 0, 1, 0, -1 };
+
+    static void Main()
+    {
+        Stopwatch sw = Stopwatch.StartNew();
+        Console.WriteLine("Hello World on December 18th 2023!");
+
+        // Create trenchmap
+        for (int y = 0; y < ydimensions; y++)
+            for (int x = 0; x < xdimensions; x++)
+                trenches[x, y] = new Trench();
+
+        string inputPath = @"..\..\..\AOC2023-18-Input.txt";
+        using (StreamReader inputFile = new StreamReader(inputPath))
+        {
+            // Read input and build contraption map
+            string input;
+            int xpos = 122, ypos = 198;
+            //int xpos = 0, ypos = 0;
+            int maxx = 0, maxy = 0;
+            int minx = 0, miny = 0;
+            trenches[xpos, ypos].dug = true;
+            int dx = 0, dy = 0;
+            while ((input = inputFile.ReadLine()) != null)
+            {
+                Match match = Regex.Match(input, @"^(.) (\d+) \(#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})\)$");
+                if (match.Success)
+                {
+                    char direction = match.Groups[1].Value[0];
+                    int length = int.Parse(match.Groups[2].Value);
+                    int Rcolor = int.Parse(match.Groups[3].Value, System.Globalization.NumberStyles.HexNumber);
+                    int Gcolor = int.Parse(match.Groups[4].Value, System.Globalization.NumberStyles.HexNumber);
+                    int Bcolor = int.Parse(match.Groups[5].Value, System.Globalization.NumberStyles.HexNumber);
+
+                    Console.Write($"D:{direction} ");
+                    Console.Write($"L:{length} ");
+                    Console.WriteLine($"C:{Rcolor},{Gcolor},{Bcolor}");
+
+                    switch (direction)
+                    {
+                        case 'U':
+                            dx = 0; dy = -1; break;
+
+                        case 'D':
+                            dx = 0; dy = 1; break;
+
+                        case 'R':
+                            dx = 1; dy = 0; break;
+
+                        case 'L':
+                            dx = -1; dy = 0; break;
+                    }
+                    for (int i = 0; i < length; i++)
+                    {
+                        xpos += dx; ypos += dy;
+                        trenches[xpos, ypos].dug = true;
+                        trenches[xpos, ypos].direction = direction;
+                        trenches[xpos, ypos].color = Color.FromArgb(Rcolor, Gcolor, Bcolor);
+                    }
+                    if (xpos > maxx) maxx = xpos;
+                    if (xpos < minx) minx = xpos;
+                    if (ypos > maxy) maxy = ypos;
+                    if (ypos < miny) miny = ypos;
+                }
+                else
+                {
+                    Console.WriteLine("Unable to parse '{0}'.", input);
+                    break;
+                }
+            }
+            Console.WriteLine("X-range is {0} - {1} and Y-range is {2} - {3}", minx, maxx, miny, maxy);
+            Console.ReadKey();
+
+            Console.WriteLine("Starying fill operation!");
+            Fill(118, 197, 1);
+            // Fill(1, 1, 1);
+
+            // Create bitmap
+            Bitmap trenchbitmap = new Bitmap(xdimensions, ydimensions);
+
+            int answer = 0;
+            for (int y = 0; y < ydimensions; y++)
+            {
+                for (int x = 0; x < xdimensions; x++)
+                {
+                    trenchbitmap.SetPixel(x, y, trenches[x, y].color);
+                    answer += trenches[x, y].dug ? 1 : 0;
+                }
+            }
+            trenchbitmap.Save(@"..\..\..\AOC2023-18-Output.bmp");
+            Console.WriteLine("The answer to part one is: {0}", answer);
+
+            // Part 2
+            // Console.WriteLine("The answer to part two is: {0}", answer2);
+            sw.Stop();
+            Console.WriteLine("Time elapsed: {0}\n", sw.Elapsed);
+
+            Console.WriteLine("Hit any key to exit!");
+            Console.ReadKey();
+        }
+    }
+
+    // Recursive fill algoritme
+    static void Fill(int x, int y, int level)
+    {
+        if (!trenches[x, y].dug)
+        {
+            trenches[x, y].dug = true;
+            trenches[x, y].color = Color.FromArgb(127, 127, 127);
+        }
+            
+        int lx, ly, nextx, nexty;
+        for (int i = 0; i < fillxdir.Length; i++)
+        {
+            Console.WriteLine($"At {x}, {y} going {fillxdir[i]}, {fillydir[i]} on level {level}");
+
+            lx = x + fillxdir[i]; ly = y + fillydir[i];
+            // Next step has not been dug and we are within bounds
+            if (lx >= 0 && lx < xdimensions && ly >= 0 && ly < ydimensions && !trenches[lx, ly].dug)
+            {
+                do
+                {
+                    // Make step
+                    trenches[lx, ly].dug = true;
+                    trenches[lx, ly].color = Color.FromArgb(183, 62, 67);
+
+                    nextx = lx + fillxdir[i]; nexty = ly + fillydir[i];
+
+                    if (nextx < 0 || nextx >= xdimensions || nexty < 0 || nexty >= ydimensions || trenches[nextx, nexty].dug)
+                    {
+                        Fill(lx, ly, level + 1);
+                        break;
+                    }
+                        
+                    if (!trenches[lx + fillydir[i], ly + fillxdir[i]].dug && trenches[nextx + fillydir[i], nexty + fillxdir[i]].dug)
+                        Fill(lx + fillydir[i], ly + fillxdir[i], level + 1);
+
+                    if (!trenches[lx - fillydir[i], ly - fillxdir[i]].dug && trenches[nextx - fillydir[i], nexty - fillxdir[i]].dug)
+                        Fill(lx - fillydir[i], ly - fillxdir[i], level + 1);
+
+                    lx = nextx; ly = nexty;
+
+                } while (lx >= 0 && lx < xdimensions && ly >= 0 && ly < ydimensions && !trenches[lx, ly].dug);
+            }
+        }
+    }
+}
+
+class Trench
+{
+    public bool dug = false;
+    public char direction;
+    public Color color;
+}

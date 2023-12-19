@@ -3,27 +3,26 @@ using System;
 using System.Collections.Immutable;
 using System.Data;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 
 
 
 class Program
 {
-    const int inputdimensions = 10;
+    const int inputdimensions = 100;
+    static HashSet<Board> savedboards = new HashSet<Board>();
 
     static void Main()
     {
         string line;
 
-        // rr = roundrocks (O), sr = squarerocks (#)
         List<PosIDPair>[] rrNS = new List<PosIDPair>[inputdimensions];
         List<PosIDPair>[] rrWE = new List<PosIDPair>[inputdimensions];
-        // List<int>[] srNS = new List<int>[inputdimensions];
-        // List<int>[] srWE = new List<int>[inputdimensions];
 
         List<char[]> rows = new List<char[]>();
         List<char[]> savedrows = new List<char[]>();
         int i = 0, answer = 0, answer2 = 0;
-        int repeats = 1, rrockID = 0, srockID = 0, row = 0;
+        int maxrepeats = 1000, rrockID = 0, srockID = 0, row = 0;
         Console.WriteLine("Hello World on December 14th 2023!");
 
         // Creating list objects for each element in the arrays
@@ -31,10 +30,8 @@ class Program
         {
             rrNS[i] = new List<PosIDPair>();
             rrWE[i] = new List<PosIDPair>();
-            // srNS[i] = new List<int>();
-            // srWE[i] = new List<int>();
         }
-        string inputPath = @"..\..\..\AOC2023-14-TestInput.txt";
+        string inputPath = @"..\..\..\AOC2023-14-Input.txt";
         using (StreamReader inputFile = new StreamReader(inputPath))
         {
             // Read input and expand lines (y-axis)
@@ -42,7 +39,7 @@ class Program
             {
                 for (i = 0; i < line.Length; i++)
                 {
-                    switch (line[i])
+                    switch (line[line.Length - i - 1])
                     {
                         case '.': // space
                             break;
@@ -51,31 +48,36 @@ class Program
                             break;
                         case '#': // squarerock
                             rrNS[i].Add(new PosIDPair(row, --srockID));
-                            // srNS[i].Add(row);
-                            // srWE[row].Add(i);
                             break;
                     }
                 }
                 row++;
             }
+            PrintPlatform(rrNS);
+            savedboards.Add(new Board(0, rrNS));
+
             Console.WriteLine("Initial rockcount is {0} round and {1} square", rrockID, -srockID);
             Console.ReadKey();
         }
         // Perform initial tilts
-        for (i = 0; i < repeats; i++)
+        for (i = 1; i <= maxrepeats; i++)
         {
-            PrintPlatform(rrNS);
             TiltAndTurn(rrNS, rrWE);
-            PrintPlatform(rrWE);
             TiltAndTurn(rrWE, rrNS);
-            PrintPlatform(rrNS);
             TiltAndTurn(rrNS, rrWE);
-            PrintPlatform(rrWE);
             TiltAndTurn(rrWE, rrNS);
+            Console.Write($"After cycle {i}: ");
             PrintPlatform(rrNS);
-            // 
-        }
-        Console.WriteLine("Completed {0} spin cylcles:", repeats);
+            Board tmpBoard = new Board(i, rrNS);
+            if (!savedboards.Add(tmpBoard))
+            {
+                savedboards.TryGetValue(tmpBoard, out tmpBoard);
+                Console.WriteLine("Found a repeat after {0} cylcles back to cycle {1}.", i, tmpBoard.Number);
+                answer2 = ((1000000000 - tmpBoard.Number) % (i - tmpBoard.Number)) + tmpBoard.Number;
+                break;
+            }                
+        }        
+        Console.WriteLine("The ending cycle after 1 000 000 000 will be the same as after cycle {0}.", answer2);
         // Console.WriteLine("The answer to part one is: {0}", answer);
         // Console.WriteLine("The answer to part two is: {0}", answer2);
         // Console.WriteLine("{0} => {1}", new string(kvp.Key._key), new string(kvp.Value));
@@ -83,80 +85,52 @@ class Program
         Console.ReadKey();
     }
 
-    static void TiltAndTurn(List<PosIDPair>[] roundin, List<PosIDPair>[] roundout)
+    static void TiltAndTurn(List<PosIDPair>[] inlist, List<PosIDPair>[] outlist)
     {
         // Clear all output lists
         for (int i = 0; i < inputdimensions; i++)
         {
-            roundout[i].Clear();
+            outlist[i].Clear();
         }
 
         // Start tilt and turn
-        for (int i = 0; i < inputdimensions; i++)
+        for (int i = inputdimensions - 1; i >= 0; i--)
         {
             int cantiltto = 0;
-            foreach (PosIDPair pip in roundin[i])
+            for (int j = 0; j < inlist[i].Count(); j++)
             {
-                if (pip.ID < 0) // Square rock
+                if (inlist[i][j].ID < 0) // Square rock
                 {
-                    cantiltto = pip.Pos;
+                    cantiltto = inlist[i][j].Pos;
                 }
-                roundout[inputdimensions - cantiltto - 1].Add(new PosIDPair(i, pip.ID));
-                cantiltto++;
-            }
-        }
-    }
-
-    static void OLD_TiltAndTurn(List<PosIDPair>[] roundin, List<PosIDPair>[] roundout, List<int>[] squares, int direction)
-    {
-        // Clear all output lists
-        for (int i = 0; i < inputdimensions; i++)
-        {
-            roundout[i].Clear();
-        }
-        
-        // Start tilt and turn
-        for (int i = 0; i < inputdimensions; i++)
-        {
-            int cantiltto = 0, squareIndex = (direction > 0) ? -1 : squares[i].Count, squarepos = -1;
-
-            foreach (PosIDPair pip in roundin[i])
-            {
-                while (pip.Pos > squarepos)
-                {
-                    cantiltto = squarepos + 1;
-                    if ((direction > 0) ? (squareIndex < squares[i].Count - 1) : (squareIndex > 0))
-                        squarepos = (direction > 0) ? (squares[i][++squareIndex]) : (inputdimensions - squares[i][--squareIndex]);
-                    else
-                        squarepos = inputdimensions;
-                }
-                if (pip.Pos >=  cantiltto)
-                {
-                    roundout[cantiltto].Add(new PosIDPair(i, pip.ID));
-                    cantiltto++;
-                }
+                outlist[cantiltto++].Add(new PosIDPair(inputdimensions - i - 1, inlist[i][j].ID));
             }
         }
     }
 
     static void PrintPlatform(List<PosIDPair>[] roundin)
     {
+        int load = 0;
         for (int i = 0; i < inputdimensions; i++)
         {
             int j = 0;
             foreach (PosIDPair pip in roundin[i])
             {
-                while (j++ < pip.Pos)
+                load += (inputdimensions - pip.Pos) * ((pip.ID > 0) ? 1 : 0);
+/*              while (j++ < pip.Pos)
                     Console.Write('.');
 
                 Console.Write((pip.ID > 0) ? 'O' : '#');
+*/
             }
-            while (j++ < inputdimensions)
+/*          while (j++ < inputdimensions)
                 Console.Write('.');
             
             Console.WriteLine();
+*/
         }
-        Console.WriteLine();
+
+        Console.WriteLine($"Total load on the north support for this board is: {load}");
     }
 
     static char[] TiltCharArray(char[] ca)
@@ -264,12 +238,70 @@ class RoundRock
 
 public struct PosIDPair
 {
-    public int Pos { get; }
+    public int Pos { get; set; }
     public int ID { get; }
 
     public PosIDPair(int pos, int id)
     {
         Pos = pos;
         ID = id;
+    }
+}
+
+public class Board
+{
+    public int Number { get; set; }
+    public List<int>[] poslist;
+
+    public Board(int num, List<PosIDPair>[] pip)
+    {
+        Number = num;
+        poslist = new List<int>[pip.Length];
+        for (int i = 0; i < pip.Length; i++)
+        {
+            poslist[i] = new List<int>();
+            foreach (PosIDPair p in pip[i])
+                poslist[i].Add(p.Pos);
+        }
+    }
+
+    public override bool Equals(Object? o)
+    {
+        // Check that object is not null or different type
+        if (o == null || GetType() != o.GetType())
+            return false;
+
+        // Check that the poslist arrays are the same length
+        if (poslist.Length != ((Board)o).poslist.Length)
+            return false;
+        
+        // Check if all the lists are the same length
+        for (int i = 0; i < poslist.Length; i++)
+            if (poslist[i].Count() != ((Board)o).poslist[i].Count())
+                return false;
+
+        // Check if all the lists contain the same elements in the same order
+        for (int i = 0; i < poslist.Length; i++)
+        {
+            for (int j = 0; j < poslist[i].Count(); j++)
+            {
+                if (poslist[i][j] != ((Board)o).poslist[i][j])
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public override int GetHashCode()
+    {
+        int hash = 0;
+        for (int i = 0; i < poslist.Length; i++)
+        {
+            foreach (int pos in poslist[i])
+            {
+                hash = hash ^ pos.GetHashCode();
+            }
+        }
+        return hash;
     }
 }

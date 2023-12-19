@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Hf6bZYH812ObUZCmittz69D9gNrkO7yz7wt5qurwBxakxe9C1S5ZY3e4PilHuPOUtvhIBUofUmSYp6Xq615Q1A==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Hallvard\\revisoft.no\\Revisoft Intranett - Kodesenter\\AdventOfCode\\2023\\Day18\\Day18.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Hallvard\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
+    "C:\\Users\\Hallvard\\.nuget\\packages\\system.drawing.common\\8.0.0\\system.drawing.common.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
