@@ -1,6 +1,6 @@
 using DataStructures
-using AStarSearch
-using Memoization
+# using AStarSearch
+# using Memoization
 
 function SetupNodes(fn)
     lines = readlines(fn)
@@ -26,7 +26,7 @@ function SetupNodes(fn)
     return nodes
 end
 
-function SendPulse(;stopon= (x,y) -> false)
+function SendPulse(nodes;stopon= (x,y) -> false)
     highs = 0
     lows = 1
     pulses = Deque{Tuple}()
@@ -44,9 +44,7 @@ function SendPulse(;stopon= (x,y) -> false)
             debug ? println("$from -> $pulseType -> $nb") : nothing
             pulseType == 1 ? highs+=1 : lows += 1
             #que pulse to nb, to start of deque
-            if stopon(nodes, (nb,pulseType))
-                return -1, -1
-            end
+            
             if !haskey(nodes, nb)
                 continue
             elseif nodes[nb][typeix] == '%'
@@ -61,8 +59,8 @@ function SendPulse(;stopon= (x,y) -> false)
                 end
             elseif nodes[nb][typeix] == '&'
                 nodes[nb][memix][from] = pulseType
-                # debug ? println("$nb memory now $(nodes[nb][memix])") : nothing
-                # nodes["ql"][memix]["mf"] == 1 ? println("$nb memory now $(nodes[nb][memix])") : nothing
+                # debug ? println("$nb memory now $(nodes[nb][memix][target])") : nothing
+                # nodes["ql"][memix][target]["mf"] == 1 ? println("$nb memory now $(nodes[nb][memix][target])") : nothing
                 if all(values(nodes[nb][memix]) .== 1)#if all in memory are high, send low
                     sendpulse = lowPulse
                 else
@@ -70,11 +68,14 @@ function SendPulse(;stopon= (x,y) -> false)
                 end
             end
             newpulse = (nb, sendpulse)
+            if stopon(nodes, newpulse)
+                return -1, -1, nodes
+            end
             # debug ? println("Pushing pulse $newpulse") : nothing
             push!(pulses, newpulse)
         end
     end
-    return highs, lows
+    return highs, lows, nodes
 end
 fn = "input.txt"
 fn = "test1.txt"
@@ -96,7 +97,7 @@ totlo = 0
 numpulses = 1000
 nodes = SetupNodes(fn)
 for i in 1:numpulses
-    hi, lo = SendPulse()
+    hi, lo, nodes = SendPulse(nodes)
     tothi += hi
     totlo += lo
 end
@@ -106,41 +107,108 @@ tothi*totlo
 j = 0
 nodes = SetupNodes(fn)
 hi = 0
-stopfn = (n, p) -> p == ("rx", 0)
-while hi != -1 && j< 50_000
-    hi, lo = SendPulse(stopon=stopfn)
+# stopfn = (n, p) -> p == ("rx", 0)
+target = "sn"
+from = "tn"
+mem = copy(nodes[target][memix][from])
+maxj = 100000
+switches = 0
+changesat = [0]
+while hi != -1 && j< maxj && switches < 30
     j+=1
+    hi, lo, nodes = SendPulse(nodes)
+    newmem = copy(nodes[target][memix][from])
+    if newmem != mem
+        println("j:$j, target:$(nodes[target][memix])")
+        switches +=1
+        push!(changesat, j)
+    end
+    mem = copy(newmem)
 end
+diff(changesat)
+unique(diff(changesat))
 j
+##
+nodes = SetupNodes(fn)
+n = 1024
+for i in 1:n
+    hi,lo,nodes = SendPulse(nodes)
+    # println(nodes[target][memix][target])
+end
+println(nodes[target][memix])
+
+
 #part 2 smart??
 nodes = SetupNodes(fn)
-hi, lo = SendPulse()
-states = FindCycle(fn, "mf")
-
-function FindCycle(fn, target)
-    nodes = SetupNodes(fn)
-    states = Dict(nodes[target] => [])
+# hi, lo = SendPulse(nodes)
+target = "lr"
+upstream = keys(nodes[target][memix])
+done = false
+maxi = 10000
+i = 0
+cycles = []
+for up in upstream
+    println(up)
+    nodescopy = deepcopy(nodes)
     done = false
-    maxi = 4000
-    i = 0
+    i=0
     while !done && i< maxi
-        hi, lo = SendPulse()
-        config = copy(nodes[target])
-        if !haskey(states, config)
-            states[nodes[target]]= 0
-        else
-            push!(states[nodes[target]], i)
+        i+=1
+        hi, lo, nodescopy = SendPulse(nodescopy)
+        if nodescopy[target][memix][up] == 1
+            done = true
+            push!(cycles, i)
         end
-        i += 1
     end
-    return states
+    println("finished with $up. Done:$done, i:$i")
 end
+cycles
+foldl(lcm, cycles)
 
-# function PressesToPulse(pulse)
-#     locnodes = copy(nodes)
-#     name = pulse[1]
-#     pulseType = pulse[2]
-#     if locnodes[name][typeix] == '&'
-#         nbs = keys(locnodes[name][memix])
-#         pressesToPreNbs = [PressesToPulse() ]
-# end
+#-------
+god = []
+nodes = SetupNodes(fn)
+target = "ql"
+upstream = keys(nodes[target][memix])
+maxj = 100000
+list = []
+for up in upstream
+    switches = 0
+    changesat = []
+    j=0
+    mem = copy(nodes[target][memix][up])
+    while  j < maxj && switches < 2
+        j+=1
+        hi, lo, nodes = SendPulse(nodes)
+        newmem = copy(nodes[target][memix][up])
+        if newmem != mem
+            println("j:$j, target:$(nodes[target][memix])")
+            switches +=1
+            push!(changesat, j)
+        end
+        mem = copy(newmem)
+    end
+    push!(list, changesat)
+end
+target
+list
+starts = [el[1] for el in list]
+n = foldl(lcm, starts)
+push!(god, n)
+anspls = foldl(lcm, god)
+
+
+#----------
+nodes = SetupNodes(fn)
+debug = false
+stopfn = (n,p) -> p == ("ss", 1)
+maxi = 10000
+hi = 0
+i = 0
+while hi!=-1 && i < maxi
+    i+=1
+    hi, lo, nodes = SendPulse(nodes, stopon=stopfn)
+end
+i
+
+foldl(lcm, [3847, 3761, 3793, 3881])
