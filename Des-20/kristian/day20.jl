@@ -106,12 +106,9 @@ tothi*totlo
 j = 0
 nodes = SetupNodes(fn)
 hi = 0
-stopfn = (n, p) -> n["ql"][memix]["fz"] == 1
+stopfn = (n, p) -> p == ("rx", 0)
 while hi != -1 && j< 50_000
-    hi, lo = SendPulse()
-    if nodes["ql"][memix]["mf"] == 1
-        println("mf")
-    end
+    hi, lo = SendPulse(stopon=stopfn)
     j+=1
 end
 j
