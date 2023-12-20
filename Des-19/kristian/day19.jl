@@ -1,6 +1,6 @@
 using DataStructures
 using AStarSearch
-
+using Memoize
 fn = "input.txt"
 fn = "test1.txt"
 lines = readlines(fn)
