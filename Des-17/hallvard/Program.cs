@@ -6,15 +6,17 @@ using System.Security.Cryptography;
 
 class Program
 {
-    public const int dimensions = 13;
+    public const int dimensions = 141;
     public static int[,] cityblocks = new int[dimensions, dimensions];
+    public static int firststep = 4;    // Input 1 for Part one and 4 for Part two
+    public static int maxdirstep = 10;  // Input 3 for Part one and 10 for Part two
 
     static void Main()
     {
         Stopwatch sw = Stopwatch.StartNew();
         Console.WriteLine("Hello World on December 17th 2023!");
 
-        string inputPath = @"..\..\..\AOC2023-17-TestInput.txt";
+        string inputPath = @"..\..\..\AOC2023-17-Input.txt";
         using (StreamReader inputFile = new StreamReader(inputPath))
         {
             // Read input and build contraption map
@@ -27,24 +29,24 @@ class Program
                     cityblocks[x, y] = (int)(line[x] - '0');
                 }
             }
+            inputFile.Close();
+        }        
 
-            // Part 1
-            Dijkstra dijkstra = new Dijkstra(cityblocks);
-            Node start = new Node(0, 0, 0, 0, 0, 0);
-            Node end = new Node(cityblocks.GetLength(0), cityblocks.GetLength(0));
+        // Part 1 and 2
+        Dijkstra dijkstra = new Dijkstra(cityblocks);
+        Node start = new Node(0, 0, 0, 0, 0, 0, "");
+        Node end = new Node(cityblocks.GetLength(0) - 1, cityblocks.GetLength(0) - 1);
 
-            int answer = dijkstra.ShortestPath(start, end);
+        int answer = dijkstra.ShortestPath(start, end);
 
-            Console.WriteLine("The answer to part one is: {0}", answer);
+        Console.WriteLine("The answer is: {0}", answer);
 
-            // Part 2
-            // Console.WriteLine("The answer to part two is: {0}", answer2);
-            sw.Stop();
-            Console.WriteLine("Time elapsed: {0}\n", sw.Elapsed);
+        sw.Stop();
+        Console.WriteLine("Time elapsed: {0}\n", sw.Elapsed);
 
-            Console.WriteLine("Hit any key to exit!");
-            Console.ReadKey();
-        }
+        Console.WriteLine("Hit any key to exit!");
+        Console.ReadKey();
+      
     }
 }
 
@@ -56,6 +58,7 @@ public class Dijkstra
 
     private static int[] xdir = new int[4] { 1, 0, -1, 0 };
     private static int[] ydir = new int[4] { 0, 1, 0, -1 };
+    private static char[] dirchar = new char[4] { '>', 'v', '<', '^' };
 
     public Dijkstra(int[,] graph)
     {
@@ -90,33 +93,22 @@ public class Dijkstra
             queue.RemoveAt(0);
 
             if (current.X == end.X && current.Y == end.Y)
+            {
+                Console.WriteLine("Reached destination at {0}, {1} from direction {2}, {3}, with steps streak of {4} and accumulated cost {5} via path:\n{6}",
+                    current.X, current.Y, current.Dx, current.Dy, current.Steps, current.Cost, current.StepHistory);
                 return current.Cost;
+            }
 
-            Console.WriteLine("Position {0}, {1} pulled from the queue with direction {2}, {3}, steps {4} and accumulated cost {5}. Visited count is {6}.",
-                current.X, current.Y, current.Dx, current.Dy, current.Steps, current.Cost, visited.Count());
+            //Console.WriteLine("Position {0}, {1} pulled from the queue with direction {2}, {3}, steps {4} and accumulated cost {5}. Visited count is {6}.",
+            //    current.X, current.Y, current.Dx, current.Dy, current.Steps, current.Cost, visited.Count());
 
             foreach (Node neighbor in GetNeighbors(current))
             {
-                Node oldNeighbor;
-                if (visited.TryGetValue(neighbor, out oldNeighbor))
+                if (!visited.Contains(neighbor))
                 {
-                    if (neighbor.Cost >= oldNeighbor.Cost && neighbor.Steps >= oldNeighbor.Steps)
-                    {
-                        Console.WriteLine("Neighbor at {0}, {1} has been visited before in direction {2}, {3} with both steps {4} ({5}) and cost {6} ({7}) lower or equal.",
-                                            neighbor.X, neighbor.Y, neighbor.Dx, neighbor.Dy, oldNeighbor.Steps, neighbor.Steps, oldNeighbor.Cost, neighbor.Cost);
-                        continue;
-                    }
-                    else
-                    {
-                        visited.Remove(neighbor);
-                    }
-                }
-
-                queue.Add(neighbor);
-                visited.Add(new Node(neighbor));
-
-                Console.WriteLine("Route to {0}, {1} with direction {2}, {3} steps {4} and accumulated cost {5} added to queue (Size is {6}).",
-                                        neighbor.X, neighbor.Y, neighbor.Dx, neighbor.Dy, neighbor.Steps, neighbor.Cost, queue.Count);
+                    visited.Add(neighbor);
+                    queue.Add(neighbor);
+                }                    
             }
         }
         return -1;
@@ -126,15 +118,23 @@ public class Dijkstra
     {
         List<Node> neighbors = new List<Node>();
 
+        int xf = (node.Dx == 0) ? Program.firststep : 1;
+        int yf = (node.Dy == 0) ? Program.firststep : 1;
+
         for (int i = 0; i < 4; i++)
         {
-            if (node.X + xdir[i] >= 0 && node.Y + ydir[i] >= 0 && node.X + xdir[i] < _x && node.Y + ydir[i] < _y // Out of bounds
+            if (node.X + xdir[i] * xf >= 0 && node.Y + ydir[i] * yf >= 0 && node.X + xdir[i] * xf < _x && node.Y + ydir[i] * yf < _y // Out of bounds
                 && !(xdir[i] != 0 && xdir[i] == -node.Dx) && !(ydir[i] != 0 && ydir[i] == -node.Dy) // Backwards violation
-                && !(xdir[i] != 0 && xdir[i] == node.Dx && node.Steps >= 3) && !(ydir[i] != 0 && ydir[i] == node.Dy && node.Steps >= 3)) // Reach max three steps
+                && !(xdir[i] != 0 && xdir[i] == node.Dx && node.Steps >= Program.maxdirstep) && !(ydir[i] != 0 && ydir[i] == node.Dy && node.Steps >= Program.maxdirstep)) // Reach max steps
             {
-                neighbors.Add(new Node(node.X + xdir[i], node.Y + ydir[i], xdir[i], ydir[i],
-                                        ((xdir[i] != 0 && xdir[i] == node.Dx) || (ydir[i] != 0 && ydir[i] == node.Dy)) ? node.Steps + 1 : 1,
-                                        node.Cost + _graph[node.X + xdir[i], node.Y + ydir[i]]));
+                int newcost = 0, j;
+                for (j = 1; j <= Math.Abs(xdir[i] * xf + ydir[i] * yf); j++)
+                {
+                    newcost += _graph[node.X + xdir[i] * j, node.Y + ydir[i] * j];
+                }
+                neighbors.Add(new Node(node.X + xdir[i] * xf, node.Y + ydir[i] * yf, xdir[i], ydir[i],
+                                        ((xdir[i] != 0 && xdir[i] == node.Dx) || (ydir[i] != 0 && ydir[i] == node.Dy)) ? node.Steps + 1 : Program.firststep,
+                                        node.Cost + newcost, node.StepHistory + new String(dirchar[i], Math.Abs(xdir[i] * xf + ydir[i] * yf))));
             }
         }
         return neighbors;
@@ -158,7 +158,7 @@ public class Node : IComparable<Node>
         Y = y;
     }
 
-    public Node(int x, int y, int dx, int dy, int steps, int cost)
+    public Node(int x, int y, int dx, int dy, int steps, int cost, string history)
     {
         X = x;
         Y = y;
@@ -166,6 +166,7 @@ public class Node : IComparable<Node>
         Dy = dy;
         Steps = steps;
         Cost = cost;
+        StepHistory = history;
     }
 
     public Node(Node node)
@@ -187,13 +188,13 @@ public class Node : IComparable<Node>
     {
         if (obj is Node n)
         {
-            return X == n.X && Y == n.Y && Dx == n.Dx && Dy == n.Dy && Steps == n.Steps && Cost == n.Cost;
+            return X == n.X && Y == n.Y && Dx == n.Dx && Dy == n.Dy && Steps == n.Steps;
         }
         return false;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(X, Y, Dx, Dy, Steps, Cost);
+        return HashCode.Combine(X, Y, Dx, Dy, Steps);
     }
 }
