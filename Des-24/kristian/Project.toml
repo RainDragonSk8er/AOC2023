@@ -1,2 +1,4 @@
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+NonlinearSolve = "8913a72c-1f9b-4ce2-8d82-65094dcecaec"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
